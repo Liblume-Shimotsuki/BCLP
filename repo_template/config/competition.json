@@ -1,0 +1,10 @@
+{
+  "matFilename1": "/dataset/2017-05-12_batchdata_updated_struct_errorcorrect.mat",
+  "matFilename2": "/dataset/2017-06-30_batchdata_updated_struct_errorcorrect.mat",
+  "matFilename3": "/dataset/2018-04-12_batchdata_updated_struct_errorcorrect.mat",
+  "alpha_train": 0.01,
+  "n_components": 3,
+  "l1_ratio": 0.9,
+  "log_target": false
+
+}
