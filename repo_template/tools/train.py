@@ -73,7 +73,7 @@ class Train:
         # mean percentage error (same as paper)
         error_train = mean_absolute_percentage_error(y_train, pred_train) * 100
         if save_model:
-            joblib.dump(regr, f"../model/{regression_type}_regression.pkl")
+            joblib.dump(regr, f"./model/{regression_type}_regression.pkl")
         else:
             self.model = regr
         print(f"Regression Error (Train): {error_train}%")
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Train Example')
     parser.add_argument('--config_path', type=str,
-                        default='../config/competition.json')
+                        default='./config/competition.json')
     args = parser.parse_args()
 
     with open(args.config_path, 'r') as file:
