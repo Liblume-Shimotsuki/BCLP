@@ -15,7 +15,6 @@
 
 
 from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
-from dataset.dataset import Dataset
 import sys
 import os
 import json
@@ -33,6 +32,7 @@ from xgboost import XGBRegressor
 
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
+from dataset.dataset import Dataset
 
 warnings.filterwarnings('ignore')
 
