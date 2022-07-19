@@ -6,7 +6,7 @@
 
 - 论文标题: Data-driven prediction of battery cycle life before capacity degradation 
 
-- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=8.22%, 在 Secondary test 数据集上, MAPE=9.97%, 综合MAPE=9.10%.
+- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=8.07%, 在 Secondary test 数据集上, MAPE=9.14%, 综合MAPE=8.60%.
 
 ## 2. 数据集和复现精度
 
@@ -51,10 +51,10 @@
 
 |                | 论文精度  | 参考代码精度 | 本repo复现精度 |
 | -------------- |:-----:|:------:|:---------:|
-| Train          | 5.6%  | 17.2%  | 7.08%     |
-| Primary test   | 7.5%  | 15.4%  | 8.22%     |
-| Secondary test | 10.7% | 16.0%  | 9.97%     |
-| 综合MAPE       | 9.1%  | 15.7%   | 9.10%     |
+| Train          | 5.6%  | 17.2%  | 6.26%     |
+| Primary test   | 7.5%  | 15.4%  | 8.07%     |
+| Secondary test | 10.7% | 16.0%  | 9.14%     |
+| 综合MAPE       | 9.1%  | 15.7%   | 8.60%     |
 ## 3. 准备数据与环境
 
 ### 3.1 准备环境
@@ -81,7 +81,15 @@ Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-Regression Error (Train): 7.0827843591101285%
+[13:50:54] WARNING: ../src/learner.cc:627: 
+Parameters: { "silent" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Regression Error (Train): 6.262108953796329%
 ```
 
 ### 4.2 模型验证
@@ -96,8 +104,8 @@ Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-Regression Error (validation (primary) test): 8.215217234978983%
-Regression Error batch 3 (test (secondary)): 9.972918185775335%
+Regression Error (validation (primary) test): 8.068955692662822%
+Regression Error batch 3 (test (secondary)): 9.140820268353899%
 ```
 
 - 在这里简单说明一下验证（eval.py）的命令，需要提供原始数据等内容，并在文档中体现输出结果。
@@ -111,15 +119,23 @@ python main.py --config_path ./config/competition.json
 ```
 
 ```
-Namespace(KernelRidge={'alpha': 0.98, 'kernel': 'polynomial', 'degree': 6, 'coef0': 3}, config_path='./config/competition.json', log_target=False, matFilename1='/kaggle/input/natureenergyseverson2019data/2017-05-12_batchdata_updated_struct_errorcorrect.mat', matFilename2='/kaggle/input/natureenergyseverson2019data/2017-06-30_batchdata_updated_struct_errorcorrect.mat', matFilename3='/kaggle/input/natureenergyseverson2019data/2018-04-12_batchdata_updated_struct_errorcorrect.mat')
+Namespace(AveragingModels={'KernelRidge': {'alpha': 0.98, 'kernel': 'polynomial', 'degree': 6, 'coef0': 3}, 'ElasticNet': {'random_state': 4, 'alpha': 0.005, 'l1_ratio': 0.9}, 'XGBRegressor': {'booster': 'gbtree', 'colsample_bytree': 0.8, 'gamma': 0.1, 'learning_rate': 0.02, 'max_depth': 5, 'n_estimators': 500, 'min_child_weight': 0.8, 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.8, 'silent': 1, 'random_state': 4, 'nthread': 2}}, config_path='./config/model_merge.json', log_target=False, matFilename1='/dataset/2017-05-12_batchdata_updated_struct_errorcorrect.mat', matFilename2='/dataset/2017-06-30_batchdata_updated_struct_errorcorrect.mat', matFilename3='/dataset/2018-04-12_batchdata_updated_struct_errorcorrect.mat')
 Loading pkl from disk ...
 Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-Regression Error (Train): 7.0827843591101285%
-Regression Error (validation (primary) test): 8.215217234978983%
-Regression Error batch 3 (test (secondary)): 9.972918185775335%
+[13:43:29] WARNING: ../src/learner.cc:627: 
+Parameters: { "silent" } might not be used.
+
+  This could be a false alarm, with some parameters getting used by language bindings but
+  then being mistakenly passed down to XGBoost core, or some parameter actually being used
+  but getting flagged wrongly here. Please open an issue if you find any such cases.
+
+
+Regression Error (Train): 6.262108953796329%
+Regression Error (validation (primary) test): 8.068955692662822%
+Regression Error batch 3 (test (secondary)): 9.140820268353899%
 ```
 
 
@@ -145,6 +161,7 @@ Regression Error batch 3 (test (secondary)): 9.972918185775335%
 |-- tools                     # 工具类文件夹
 |   ├── train.py              # 训练代码文件
 |   ├── eval.py               # 验证代码文件
+|   ├── averaging_model.py    # 模型融合
 |-- main.py                   # 项目主文件
 |-- README.md                 # 中文用户手册
 |-- LICENSE                   # LICENSE文件
