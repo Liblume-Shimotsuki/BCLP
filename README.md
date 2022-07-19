@@ -6,7 +6,7 @@
 
 - 论文标题: Data-driven prediction of battery cycle life before capacity degradation 
 
-- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=8.98%, 在 Secondary test 数据集上, MAPE=10.04%, 综合MAPE=9.51%.
+- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=8.22%, 在 Secondary test 数据集上, MAPE=9.97%, 综合MAPE=9.10%.
 
 ## 2. 数据集和复现精度
 
@@ -51,9 +51,9 @@
 
 |                | 论文精度  | 参考代码精度 | 本repo复现精度 |
 | -------------- |:-----:|:------:|:---------:|
-| Train          | 5.6%  | 17.2%  | 7.09%     |
-| Primary test   | 7.5%  | 15.4%  | 8.98%     |
-| Secondary test | 10.7% | 16.0%  | 10.04%    |
+| Train          | 5.6%  | 17.2%  | 7.08%     |
+| Primary test   | 7.5%  | 15.4%  | 8.22%     |
+| Secondary test | 10.7% | 16.0%  | 9.97%     |
 
 ## 3. 准备数据与环境
 
@@ -81,7 +81,7 @@ Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-Regression Error (Train): 7.089922248058682%
+Regression Error (Train): 7.0827843591101285%
 ```
 
 ### 4.2 模型验证
@@ -96,8 +96,8 @@ Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-Regression Error (validation (primary) test): 8.984306055251182%
-Regression Error batch 3 (test (secondary)): 10.03842079872437%
+Regression Error (validation (primary) test): 8.215217234978983%
+Regression Error batch 3 (test (secondary)): 9.972918185775335%
 ```
 
 - 在这里简单说明一下验证（eval.py）的命令，需要提供原始数据等内容，并在文档中体现输出结果。
@@ -117,9 +117,9 @@ Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-Regression Error (Train): 7.089922248058682%
-Regression Error (validation (primary) test): 8.984306055251182%
-Regression Error batch 3 (test (secondary)): 10.03842079872437%
+Regression Error (Train): 7.0827843591101285%
+Regression Error (validation (primary) test): 8.215217234978983%
+Regression Error batch 3 (test (secondary)): 9.972918185775335%
 ```
 
 
