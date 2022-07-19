@@ -283,7 +283,7 @@ class Dataset:
         类主函数，返回可用于训练的数据集
         """
         pre_dataset = Preprocess(args = self.args)
-        bat_dict1, bat_dict2, bat_dict3 = pre_dataset.data_preprocess()
+        bat_dict1, bat_dict2, bat_dict3 = pre_dataset.read()
         # calling function to load from disk
         all_batches_dict = self.load_batches_to_dict(bat_dict1, bat_dict2, bat_dict3)
         # function to build features for ML
