@@ -45,8 +45,7 @@ class Train:
         self.model = None
         self.args = args
 
-    def regression(self, datasets, alpha_train, l1_ratio, regression_type, log_target=True,
-                   model="elastic", save_model = False):
+    def regression(self, datasets, regression_type, log_target=True, model_cfg=None, save_model = False):
         """
         回归函数
         :param datasets: 数据集
@@ -58,7 +57,7 @@ class Train:
         """
         # get three sets
         x_train, y_train = datasets.get("train")
-        regr = KernelRidge(alpha=0.98, kernel='polynomial', degree=6, coef0=3.0)
+        regr = KernelRidge(**model_cfg)
         # labels/ targets might be converted to log version based on choice
         targets = np.log(y_train) if log_target else y_train
         # fit regression model
