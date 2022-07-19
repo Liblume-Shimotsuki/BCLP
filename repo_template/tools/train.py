@@ -24,6 +24,7 @@ import numpy as np
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.linear_model import ElasticNet, LinearRegression, LogisticRegression
+from sklearn.kernel_ridge import KernelRidge
 
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -57,13 +58,7 @@ class Train:
         """
         # get three sets
         x_train, y_train = datasets.get("train")
-
-        if model == "elastic":
-            print("Elastic net")
-            regr = ElasticNet(random_state=4, alpha=alpha_train, l1_ratio=l1_ratio)
-        else:
-            print("Lasso net")
-            regr = Lasso(alpha=alpha_train)
+        regr = KernelRidge(alpha=0.98, kernel='polynomial', degree=6, coef0=3.0)
         # labels/ targets might be converted to log version based on choice
         targets = np.log(y_train) if log_target else y_train
         # fit regression model
