@@ -56,7 +56,7 @@ class Eval:
         x_val, y_val = datasets.get("val")
         x_test, y_test = datasets.get("test")
         if load_model:
-            regr = joblib.load(f"../model/{regression_type}_regression.pkl")
+            regr = joblib.load(f"./model/{regression_type}_regression.pkl")
         else:
             regr = self.model
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Train Example')
     parser.add_argument('--config_path', type=str,
-                        default='../config/competition.json')
+                        default='./config/competition.json')
     args = parser.parse_args()
 
     with open(args.config_path, 'r') as file:
