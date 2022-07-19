@@ -78,22 +78,9 @@ class Eval:
         """
         验证回归模型主参数
         """
-        print("Full")
         features = Dataset(self.args, regression_type="full").get_feature()
         self.evaluation(features,
                         regression_type="full",
-                        log_target=self.args.log_target)
-
-        print("\nDischarge")
-        features = Dataset(self.args, regression_type="discharge").get_feature()
-        self.evaluation(features,
-                        regression_type="discharge",
-                        log_target=self.args.log_target)
-
-        print("\nVariance")
-        features = Dataset(self.args, regression_type="variance").get_feature()
-        self.evaluation(features,
-                        regression_type="variance",
                         log_target=self.args.log_target)
 
 
