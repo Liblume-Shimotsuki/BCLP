@@ -111,7 +111,15 @@ python main.py --config_path ./config/competition.json
 ```
 
 ```
-
+Namespace(KernelRidge={'alpha': 0.98, 'kernel': 'polynomial', 'degree': 6, 'coef0': 3}, config_path='./config/competition.json', log_target=False, matFilename1='/kaggle/input/natureenergyseverson2019data/2017-05-12_batchdata_updated_struct_errorcorrect.mat', matFilename2='/kaggle/input/natureenergyseverson2019data/2017-06-30_batchdata_updated_struct_errorcorrect.mat', matFilename3='/kaggle/input/natureenergyseverson2019data/2018-04-12_batchdata_updated_struct_errorcorrect.mat')
+Loading pkl from disk ...
+Loading batches ...
+Done loading batches
+Start building features ...
+Done building features
+Regression Error (Train): 7.089922248058682%
+Regression Error (validation (primary) test): 8.984306055251182%
+Regression Error batch 3 (test (secondary)): 10.03842079872437%
 ```
 
 
