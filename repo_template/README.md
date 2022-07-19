@@ -2,50 +2,119 @@
 
 ## 1. 简介
 
-- 简单的介绍模型，以及模型的主要架构或主要功能，可以在简介的下方直接贴上图片，展示模型结构。
+- 本次使用的模型为Kernel Ridge Regression即使用核技巧的岭回归（L2正则线性回归），它的学习形式和SVR（support vector regression）相同，但是两者的损失函数不同。
 
 - 论文标题: Data-driven prediction of battery cycle life before capacity degradation 
 
-- 复现所用到的评价指标以及所达到的精度。
-
-
+- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=8.98%, 在 Secondary test 数据集上, MAPE=10.04%, 综合MAPE=9.51%.
 
 ## 2. 数据集和复现精度
 
 - 给出本repo中用到的数据集的基本信息，例如数据集大小与数据集格式。格式如下：
-  - 数据集大小：关于数据集大小的描述，如类别，数量等等
+  
+  - 数据集大小：
+  
+  batch1：2017-05-12_batchdata_updated_struct_errorcorrect.mat cell数：numBatch1 = 41
+  
+  batch2：2017-06-30_batchdata_updated_struct_errorcorrect.mat cell数：numBatch1 = 43
+  
+  batch3：2018-04-12_batchdata_updated_struct_errorcorrect.mat cell数：numBatch1 = 40
+  
+  将三个batch的数据合并后划分为train、primary_test、secondary_test三个数据集，划分方式如下
+  
+  ```
+  # train由(batch1+batch2)中索引编号为单数的cell组成数据集 [1,3,5,7,9,11,...,81,83]
+  train_idx = np.arange(1, (numBatch1 + numBatch2), 2)
+  
+  # primary_test由(batch1+batch2)中索引编号为双数的cell组成数据集 [0,2,4,6,8,10,...,80,82]
+  primary_test_idx = np.arange(0, (numBatch1 + numBatch2), 2)
+  
+  # secondary_test由batch3中的所有cell组成 [84,85,86,87,88,...,123]
+  secondary_test_idx = np.arange((numBatch1 + numBatch2), 124)
+  ```
+  
+  另外, 根据论文中的描述, 在给出MAPE时移除了一个寿命过短的cell.
+  
+  > One battery in the test set reaches 80% state-of-health rapidly and does not
+  > match other observed patterns. Therefore, the parenthetical primary test results correspond to the exclusion of this battery
+  
+  因此, 在也进行了相应的操作.
+  
+  ```
+  primary_test_idx = primary_test_idx.tolist()
+  primary_test_idx.remove(42)
+  ```
+  
   - 数据格式：关于数据集格式的说明
 
 - 基于上述数据集，给出论文中精度、参考代码的精度、本repo复现的精度、数据集名称、模型大小，以表格的形式给出。如果超参数有差别，可以在表格中新增一列备注一下。
 
-
+|                | 论文精度  | 参考代码精度 | 本repo复现精度 |
+| -------------- |:-----:|:------:|:---------:|
+| Train          | 5.6%  | 17.2%  | 7.09%     |
+| Primary test   | 7.5%  | 15.4%  | 8.98%     |
+| Secondary test | 10.7% | 16.0%  | 10.04%    |
 
 ## 3. 准备数据与环境
 
 ### 3.1 准备环境
 
-- 建议将代码中用到的非python原生的库，都写在requirements.txt中，直接使用`pip install -r requirements.txt`安装依赖即可。
+```
+pip install -r requirements.txt
+```
 
 ### 3.2 准备数据
 
 - 简单介绍下对数据进行了哪些操作，例如数据预处理、train&test数据集选择等。
 
-
-
 ## 4. 开始使用
 
 ### 4.1 模型训练
 
-- 简单说明一下训练（train.py）的命令，建议附一些简短的训练日志。
+```
+python tools/train.py --config_path ./config/competition.json
+```
 
-- 可以简要介绍下可配置的超参数以及配置方法。
+```
+Loading pkl from disk ...
+Loading batches ...
+Done loading batches
+Start building features ...
+Done building features
+Regression Error (Train): 7.089922248058682%
+```
 
 ### 4.2 模型验证
+
+```
+python tools/eval.py --config_path ./config/competition.json
+```
+
+```
+Loading pkl from disk ...
+Loading batches ...
+Done loading batches
+Start building features ...
+Done building features
+Regression Error (validation (primary) test): 8.984306055251182%
+Regression Error batch 3 (test (secondary)): 10.03842079872437%
+```
 
 - 在这里简单说明一下验证（eval.py）的命令，需要提供原始数据等内容，并在文档中体现输出结果。
 
 ### 4.3 项目主文件
+
 - 在这里简单说明一下项目主文件（main.py）的命令，main.py中可执行全流程（train+eval）过程。
+
+```
+python main.py --config_path ./config/competition.json
+```
+
+```
+
+```
+
+
 
 ## 5. 代码结构与简要说明
 
@@ -85,18 +154,12 @@
 |   ├── train_val_split    # 划分train&val数据集
 ```
 
-
-
 ## 6. LICENSE
 
 - 本项目的发布受[Apache 2.0 license](https://github.com/thinkenergy/vloong-nature-energy/blob/master/LICENSE)许可认证。
-
-
 
 ## 7. 参考链接与文献
 
 - **[vloong-nature-energy/repo_template at master thinkenergy/vloong-nature-energy](https://github.com/thinkenergy/vloong-nature-energy/tree/master/repo_template)**
 
 - **[Data-driven prediction of battery cycle life before capacity degradation](https://doi.org/10.1038/s41560-019-0356-8)**
-
-  
