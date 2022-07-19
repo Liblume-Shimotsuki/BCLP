@@ -67,5 +67,5 @@ if __name__ == '__main__':
         p_args = argparse.Namespace()
         p_args.__dict__.update(json.load(file))
         args = parser.parse_args(namespace=p_args)
-
+    print(args)
     Main(args).run()
