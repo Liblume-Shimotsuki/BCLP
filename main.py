@@ -46,7 +46,7 @@ class Main:
         运行算法主程序
         """
         # Full
-        model_cfg = self.args.AveragingModels
+        model_cfg = self.args.model_cfg
         features_full = Dataset(self.args, regression_type="full").get_feature()
         mode_full = Train(self.args)
         mode_full.regression(features_full, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target)

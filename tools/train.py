@@ -109,7 +109,7 @@ class Train:
         """
         训练回归模型主参数
         """
-        model_cfg = self.args.KernelRidge
+        model_cfg = self.args.model_cfg
         features = Dataset(self.args, regression_type="full").get_feature()
         self.regression(features, regression_type="full", model_cfg=model_cfg,
                         log_target=self.args.log_target, save_model=True)
