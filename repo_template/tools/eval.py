@@ -82,7 +82,8 @@ class Eval:
         features = Dataset(self.args, regression_type="full").get_feature()
         self.evaluation(features,
                         regression_type="full",
-                        log_target=self.args.log_target)
+                        log_target=self.args.log_target,
+                        load_model=True)
 
 
 if __name__ == '__main__':
