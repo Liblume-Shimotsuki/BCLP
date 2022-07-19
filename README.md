@@ -1,135 +1,165 @@
-# 参赛手册
+# README模板
+
+## 1. 简介
+
+- 本次使用的模型为Kernel Ridge Regression即使用核技巧的岭回归（L2正则线性回归），它的学习形式和SVR（support vector regression）相同，但是两者的损失函数不同。
+
+- 论文标题: Data-driven prediction of battery cycle life before capacity degradation 
+
+- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=8.98%, 在 Secondary test 数据集上, MAPE=10.04%, 综合MAPE=9.51%.
+
+## 2. 数据集和复现精度
+
+- 给出本repo中用到的数据集的基本信息，例如数据集大小与数据集格式。格式如下：
+  
+  - 数据集大小：
+  
+  batch1：2017-05-12_batchdata_updated_struct_errorcorrect.mat cell数：numBatch1 = 41
+  
+  batch2：2017-06-30_batchdata_updated_struct_errorcorrect.mat cell数：numBatch1 = 43
+  
+  batch3：2018-04-12_batchdata_updated_struct_errorcorrect.mat cell数：numBatch1 = 40
+  
+  将三个batch的数据合并后划分为train、primary_test、secondary_test三个数据集，划分方式如下
+  
+  ```
+  # train由(batch1+batch2)中索引编号为单数的cell组成数据集 [1,3,5,7,9,11,...,81,83]
+  train_idx = np.arange(1, (numBatch1 + numBatch2), 2)
+  
+  # primary_test由(batch1+batch2)中索引编号为双数的cell组成数据集 [0,2,4,6,8,10,...,80,82]
+  primary_test_idx = np.arange(0, (numBatch1 + numBatch2), 2)
+  
+  # secondary_test由batch3中的所有cell组成 [84,85,86,87,88,...,123]
+  secondary_test_idx = np.arange((numBatch1 + numBatch2), 124)
+  ```
+  
+  另外, 根据论文中的描述, 在给出MAPE时移除了一个寿命过短的cell.
+  
+  > One battery in the test set reaches 80% state-of-health rapidly and does not
+  > match other observed patterns. Therefore, the parenthetical primary test results correspond to the exclusion of this battery
+  
+  因此, 在也进行了相应的操作.
+  
+  ```
+  primary_test_idx = primary_test_idx.tolist()
+  primary_test_idx.remove(42)
+  ```
+  
+  - 数据格式：关于数据集格式的说明
+
+- 基于上述数据集，给出论文中精度、参考代码的精度、本repo复现的精度、数据集名称、模型大小，以表格的形式给出。如果超参数有差别，可以在表格中新增一列备注一下。
+
+|                | 论文精度  | 参考代码精度 | 本repo复现精度 |
+| -------------- |:-----:|:------:|:---------:|
+| Train          | 5.6%  | 17.2%  | 7.09%     |
+| Primary test   | 7.5%  | 15.4%  | 8.98%     |
+| Secondary test | 10.7% | 16.0%  | 10.04%    |
+
+## 3. 准备数据与环境
+
+### 3.1 准备环境
+
+```
+pip install -r requirements.txt
+```
+
+### 3.2 准备数据
+
+- 简单介绍下对数据进行了哪些操作，例如数据预处理、train&test数据集选择等。
+
+## 4. 开始使用
+
+### 4.1 模型训练
+
+```
+python tools/train.py --config_path ./config/competition.json
+```
+
+```
+Loading pkl from disk ...
+Loading batches ...
+Done loading batches
+Start building features ...
+Done building features
+Regression Error (Train): 7.089922248058682%
+```
+
+### 4.2 模型验证
+
+```
+python tools/eval.py --config_path ./config/competition.json
+```
+
+```
+Loading pkl from disk ...
+Loading batches ...
+Done loading batches
+Start building features ...
+Done building features
+Regression Error (validation (primary) test): 8.984306055251182%
+Regression Error batch 3 (test (secondary)): 10.03842079872437%
+```
 
-# 首届vLoong能源AI挑战赛
+- 在这里简单说明一下验证（eval.py）的命令，需要提供原始数据等内容，并在文档中体现输出结果。
 
-欢迎各位同学参加vLoong能源AI挑战赛，我们通过比赛机制，**鼓励选手创新方法（不必严格遵守原论文方法）复现顶刊论文指标，达到更高精度**，助力更多科研成果落地，为智慧能源开源生态建设贡献力量。
+### 4.3 项目主文件
 
-本次挑战赛以线上比赛的形式进行，参赛选手需在规定时间复现并改进模型，率先达到 **指定精度** 的选手通过验收即可获得复现奖，并依据最终精度排名瓜分万元现金大奖！
+- 在这里简单说明一下项目主文件（main.py）的命令，main.py中可执行全流程（train+eval）过程。
 
+```
+python main.py --config_path ./config/competition.json
+```
 
+```
 
-# 一、赛程赛制
+```
 
-## **1  整体说明**
 
-![img](https://github.com/thinkenergy/vloong-nature-energy/blob/master/static/流程图.jpg)
 
-（1） **报名**：报名比赛的同学，你需要进入vLoong能源AI挑战赛社群进行报名，所有大赛相关信息都会在群中及时同步；
+## 5. 代码结构与简要说明
 
-（2） **讲座**：为了大家能够更好的理解和实践比赛，我们特意为大家准备了比赛宣讲与论文复现案例实操经验分享；
+### 5.1 代码结构
 
-（3） **重要**：收到论文后，自行新建一个GitHub Repo；
+- 列出代码目录结构
 
-（4） **提升**：为提升对论文的理解，选手需要跑通组委会提供的原论文参考代码。
+```undefined
+./repo_template               # 项目文件夹名称，可以修改为自己的文件夹名称
+|-- config                    # 配置类文件夹
+|   ├── competition.json      # 项目配置信息文件
+|-- dataset                   # 数据集类文件夹
+|   ├── dataset.py            # 数据集代码文件
+|-- log                       # 日志类文件夹
+|   ├── train.log             # 训练日志文件
+|-- model                     # 模型类文件夹
+|   ├── full_regression.pkl   # 训练好的模型文件
+|-- preprocess                # 预处理类文件夹
+|   ├── preprocess.py         # 数据预处理代码文件
+|-- tools                     # 工具类文件夹
+|   ├── train.py              # 训练代码文件
+|   ├── eval.py               # 验证代码文件
+|-- main.py                   # 项目主文件
+|-- README.md                 # 中文用户手册
+|-- LICENSE                   # LICENSE文件
+```
 
-（5） **福利**： 跑通参考代码后，你可以发邮件至[ vLoong@thinkenergy.tech ](http://vLoong@thinkenergy.tech)联系工作人员，简要描述模型重要信息并给出原论文参考代码的预测结果，邮件模板见[邮件提交规范](https://github.com/thinkenergy/vloong-nature-energy/blob/master/邮件提交规范.md) ，经邮件确认后可以分配 **专属导师** ，一对一贴身提供论文复现答疑；
+### 5.2 代码简要说明
 
-（6） **完成**：按照官方 [REPO提交规范](https://github.com/thinkenergy/vloong-nature-energy/blob/master/REPO%20%E6%8F%90%E4%BA%A4%E8%A7%84%E8%8C%83.md)中的文档和规范，提供数据、模型、基本使用（模型训练、评估、项目主文件）等信息，在文档中体现训练过程的部分日志信息以及预测结果；
+- 说明代码文件中的类以及主要函数功能
 
-（7） **重要**： 比赛完成后提交结果，按邮件模板，发送邮件至[ vLoong@thinkenergy.tech ](http://vLoong@thinkenergy.tech)；如需提供训练日志(train.log)文件，训练日志中需要包含loss、验证集精度（如果训练时开启评估），当前的epoch和iter数量；model文件夹内模型必须可以通过参赛队伍提供代码重新生成；**以此完成结果的正式提交**，提交时间以组委会收到邮件时间为准（复现奖以第一次提交符合精度时间为准）
+```undefined
+# 示例
+./dataset.py               # 数据集代码文件
+|-- class Dataset          # 数据集类
+|   ├── get_feature        # 类主函数，返回可用于训练的数据集
+|   ├── train_val_split    # 划分train&val数据集
+```
 
-（8） **验收**：提交后3个工作日内，组委会进行验收，如果需要修改，会及时通知选手，选手修改后再次完成提交；
+## 6. LICENSE
 
-（9） **奖励发放**：**最终提交论文的精度、代码规范、Repo文档符合要求后，宣布论文复现成功并更新比赛信息**，前5名达到精度要求的选手即可获得复现奖，并依据最终精度排名瓜分万元现金大奖！
+- 本项目的发布受[Apache 2.0 license](https://github.com/thinkenergy/vloong-nature-energy/blob/master/LICENSE)许可认证。
 
+## 7. 参考链接与文献
 
+- **[vloong-nature-energy/repo_template at master thinkenergy/vloong-nature-energy](https://github.com/thinkenergy/vloong-nature-energy/tree/master/repo_template)**
 
-> vLoong平台是昇科能源自主研发的国内首个电池 AI 开放平台，于 2021 年 12 月 8 日正式上线，配备了可智能化调度的算力。提供在线编程环境、GPU算力、海量开源算法和开放数据，帮助开发者快速创建和部署模型。
-
-
-
-# 二、挑战要求
-
-| **论文名称**                                                 | **复现参考实现代码**                                         |                        **复现数据集**                        |                       **复现精度要求**                       |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [2019 Data-driven prediction of battery cycle life before capacity degradation.pdf](https://github.com/thinkenergy/vloong-nature-energy/blob/master/2019%20Data-driven%20prediction%20of%20battery%20cycle%20life%20before%20capacity%20degradation.pdf) | [template](https://github.com/thinkenergy/vloong-nature-energy/blob/master/repo_template) | 以下三种数据集使用方式参赛选手可任意选择： <br/>1.原作者链接 https://data.matr.io/1 <br/>2.腾讯微云链接 https://share.weiyun.com/cjmHpfld <br/>3.vLoong算力平台链接 http://vloong.thinkenergy.tech/data/datasets/custom/154 | MAPE≤10% （注：第4步“跑通参考代码”无精度要求；评选“复现奖”、“季军奖”、“亚军奖”、“冠军奖”复现精度最低应达到此要求） |
-
-1. 参赛选手需反复阅读论文，并理解论文中提到的实验思路，明确实验背景以及方法、实验过程、实验目的。
-
-1. 本次比赛不必严格遵守原论文实验方法，鼓励参赛选手使用创新方法，包括但不限于使用不同的feature、创新模型结构等。
-
-1. 本次比赛的复现指标需要与论文在相同的实验背景下得到，例如：9.1%的test error是在前100个cycle中得到的，为保证实验背景一致，复现指标也需要在前100的cycle中得到。
-
-![img](https://github.com/thinkenergy/vloong-nature-energy/blob/master/static/image.png)
-
-# **三、时间安排**
-
-| **时间**        | **日程**              |
-| --------------- | --------------------- |
-| 2022/6/30       | 发布比赛&报名入口开启 |
-| 2022/7/31 24:00 | 报名入口关闭          |
-| 2022/7/31 24:00 | 比赛结果截止提交      |
-
-# **四、奖项设置**
-
-| **奖项**                           | **个数（团队）** | **奖励** |
-| ---------------------------------- | ---------------- | -------- |
-| 冠军奖                             | 1                | ¥5000    |
-| 亚军奖                             | 2                | ¥2000    |
-| 季军奖                             | 3                | ¥500     |
-| 复现奖                             | 5                | 精美车模 |
-| 参与奖（提交能成功运行的复现代码） | 不限             | 免费算力 |
-
-**其他奖励**
-
-比赛中表现优异的同学有机会加入vLoong Studio人才计划。
-
-> vLoong Studio是由昇科能源与欧阳明高院士工作站联合设立，旨在研发前沿AI for Smart Energy技术，探索AI技术在新能源领域的应用，促进学科交叉，实现AI技术产业化落地，培养高级电池AI人才。
-
-
-
-**特别注意**
-
-（1）**以上所有提及金额均为税前金额。**
-
-（2）获奖评定需选手提供系统报告（包括方法说明、系统代码和数据、参考文献和引用开源工具等）及团队成员名单。
-
-
-
-# **五、参赛方式**
-
-## 1  参赛对象
-
-本次竞赛面向全社会开放，不限年龄、身份、国籍，相关领域的个人、高等院校、科研机构、企业单位、初创团队等人员均可报名参赛。
-
-## 2  参赛要求
-
-（1）支持以个人或团队（线下自由组队）的形式参赛，**每支参赛队伍的人数不超过3人**，允许跨单位/院校自由组队，每人只能参加一支队伍。
-
-（2）参赛选手报名须保证所提供的个人信息真实、准确、有效。如发放奖金或礼品时发现选手填写的报名信息与个人身份不相符，组委会将保留停止发放奖金或礼品的权利。
-
-## 3  比赛报名
-
-（1）组队报名
-
-- **组队报名方法**：队长提前确认参赛队员并填写报名表报名，自比赛报名截止前起，队长不得转让队长身份、解散团队、移除队员，队员不得离开团队。
-
-（2）官方交流报名群
-
-![img](https://github.com/thinkenergy/vloong-nature-energy/blob/master/static/加入群聊二维码.png)
-
-
-
-## 4  结果提交
-
-（1）结果提交请按邮件模板，发送邮件至[ vLoong@thinkenergy.tech ](http://vLoong@thinkenergy.tech)。
-
-（2）大赛组委会会定期更新赛事信息到官方社群中。
-
-（3）如果发现有恶意提交、抄袭等违规作弊的现象，可能会取消比赛资格。
-
-## 5  vLoong系列挑战赛不收取任何报名费用。
-
-
-
-# 六、反作弊声明
-
-- 参与者禁止加入多个战队报名，一经发现将取消成绩；
-
-- 参与者禁止在指定考核技术能力的范围外利用规则漏洞或技术漏洞等不良途径提高成绩排名，一经发现取消成绩；
-
-- 参与者如有恶意提交、抄袭等违规作弊的现象，可能会取消比赛资格。
-
-# 七、其他
-
-主办方在法律法规许可范围内对本比赛规程享有解释权。
+- **[Data-driven prediction of battery cycle life before capacity degradation](https://doi.org/10.1038/s41560-019-0356-8)**
