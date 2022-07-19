@@ -85,7 +85,7 @@ class Train:
         """
         model_cfg = self.args.KernelRidge
         features = Dataset(self.args, regression_type="full").get_feature()
-        self.regression(features, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target)
+        self.regression(features, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target, save_model=True)
 
 
 if __name__ == '__main__':
