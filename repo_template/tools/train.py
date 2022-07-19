@@ -83,24 +83,9 @@ class Train:
         """
         训练回归模型主参数
         """
-        print("Full")
+        model_cfg = self.args.KernelRidge
         features = Dataset(self.args, regression_type="full").get_feature()
-        self.regression(features, alpha_train=self.args.alpha_train,
-                        regression_type="full",
-                        l1_ratio=self.args.l1_ratio, log_target=self.args.log_target, model="elastic")
-
-        print("\nDischarge")
-        features = Dataset(self.args, regression_type="discharge").get_feature()
-        self.regression(features, alpha_train=self.args.alpha_train,
-                        regression_type="discharge",
-                        l1_ratio=self.args.l1_ratio, log_target=self.args.log_target, model="elastic")
-
-        print("\nVariance")
-        features = Dataset(self.args, regression_type="variance").get_feature()
-        self.regression(features, alpha_train=self.args.alpha_train,
-                        regression_type="variance",
-                        l1_ratio=self.args.l1_ratio, log_target=self.args.log_target, model="elastic")
-
+        self.regression(features, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target)
 
 
 if __name__ == '__main__':
