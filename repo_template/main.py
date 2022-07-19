@@ -49,7 +49,7 @@ class Main:
         model_cfg = self.args.KernelRidge
         features_full = Dataset(self.args, regression_type="full").get_feature()
         mode_full = Train(self.args)
-        mode_full.regression(features_full, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target, model="elastic")
+        mode_full.regression(features_full, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target)
 
         Eval(self.args, model = mode_full.model).evaluation(features_full,
                         regression_type="full",
