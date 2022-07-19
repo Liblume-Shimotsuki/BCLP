@@ -221,7 +221,7 @@ class Dataset:
         print("Done building features")
         return features_df
 
-    def train_val_split(self, features_df, regression_type="full", model="regression"):
+    def train_val_split(self, features_df, regression_type="full", model="regression", remove_exceptional_cells=True):
         """
         划分train&test数据集。注意：数据集要按照指定方式划分
         :param features_df: 包含最初使用的特性dataframe
@@ -233,37 +233,51 @@ class Dataset:
 
         # dictionary to hold the features indices for each model version.
         features = {
-            "full": [1, 2, 5, 6, 7, 9, 10, 11],
-            "variance": [2],
-            "discharge": [1, 2, 3, 4, 7, 8]
+            "full": ["minimum_dQ_100_10", "variance_dQ_100_10", "mean_charge_time_2_6",
+                     "variance_dQ_5_4", "diff_IR_100_2", "slope_lin_fit_2_100",
+                     "discharge_capacity_2"],
         }
         # get the features for the model version (full, variance, discharge)
         feature_indices = features[regression_type]
         # get all cells with the specified features
-        model_features = features_df.iloc[:, feature_indices]
+        model_features = features_df[feature_indices]
         # get last two columns (cycle life and classification)
         labels = features_df.iloc[:, -2:]
         # labels are (cycle life ) for regression other wise (0/1) for classsification
-        labels = labels.iloc[:, 0] if model == "regression" else labels.iloc[:, 1]
+        labels = labels.iloc[:,
+                             0] if model == "regression" else labels.iloc[:, 1]
 
         # split data in to train/primary_test/and secondary test
         train_cells = np.arange(1, 84, 2)
-        val_cells = np.arange(0, 84, 2)
+        val_cells = np.arange(0, 84, 2).tolist()
+        if remove_exceptional_cells:
+            val_cells.remove(42)
         test_cells = np.arange(84, 124, 1)
 
         # get cells and their features of each set and convert to numpy for further computations
-        x_train = np.array(model_features.iloc[train_cells])
-        x_val = np.array(model_features.iloc[val_cells])
-        x_test = np.array(model_features.iloc[test_cells])
+        x_train = model_features.loc[train_cells]
+        x_val = model_features.iloc[val_cells]
+        x_test = model_features.iloc[test_cells]
 
         # target values or labels for training
-        y_train = np.array(labels.iloc[train_cells])
-        y_val = np.array(labels.iloc[val_cells])
-        y_test = np.array(labels.iloc[test_cells])
+        y_train = labels.iloc[train_cells]
+        y_val = labels.iloc[val_cells]
+        y_test = labels.iloc[test_cells]
 
         # return 3 sets
-        return {"train": (x_train, y_train), "val": (x_val, y_val), "test": (x_test, y_test)}
+        return {"train": [x_train, y_train], "val": [x_val, y_val], "test": [x_test, y_test]}
+    def data_normalize(self, battery_dataset):
+        from sklearn.preprocessing import StandardScaler, Normalizer, MinMaxScaler
 
+        data_normalize = battery_dataset.copy()
+        # s = StandardScaler().fit(data_normalize.iloc[train_cells])
+        # s = Normalizer().fit(data_normalize.iloc[train_cells])
+        s = MinMaxScaler().fit(data_normalize["train"][0])
+        data_normalize["train"][0] = s.transform(data_normalize["train"][0])
+        data_normalize["val"][0] = s.transform(data_normalize["val"][0])
+        data_normalize["test"][0] = s.transform(data_normalize["test"][0])
+
+        return data_normalize
     def get_feature(self):
         """
         类主函数，返回可用于训练的数据集
@@ -275,7 +289,7 @@ class Dataset:
         # function to build features for ML
         features_df = self.build_feature_df(all_batches_dict)
         battery_dataset = self.train_val_split(features_df, self.regression_type)
-
+        battery_dataset = self.data_normalize(battery_dataset)
         return battery_dataset
 
 
