@@ -7,6 +7,6 @@
     "kernel": "polynomial",
     "degree": 6,
     "coef0": 3
-  }
+  },
   "log_target": false
 }
