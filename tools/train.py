@@ -14,6 +14,8 @@
 # limitations under the License.
 
 
+from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
+from dataset.dataset import Dataset
 import sys
 import os
 import json
@@ -26,11 +28,31 @@ from sklearn.linear_model import Lasso, Ridge
 from sklearn.linear_model import ElasticNet, LinearRegression, LogisticRegression
 from sklearn.kernel_ridge import KernelRidge
 
+import xgboost
+from xgboost import XGBRegressor
+
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
-from dataset.dataset import Dataset
 
 warnings.filterwarnings('ignore')
+
+
+class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
+    def __init__(self, models):
+        self.models = models
+
+    def fit(self, X, y):
+        self.models_ = [clone(x) for x in self.models]
+        for model in self.models_:
+            model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        predictions = np.column_stack([
+            model.predict(X) for model in self.models_
+        ])
+        return np.mean(predictions, axis=1)
+
 
 class Train:
     """
@@ -45,7 +67,7 @@ class Train:
         self.model = None
         self.args = args
 
-    def regression(self, datasets, regression_type, log_target=True, model_cfg=None, save_model = False):
+    def regression(self, datasets, regression_type, log_target=True, model_cfg=None, save_model=False):
         """
         回归函数
         :param datasets: 数据集
@@ -57,14 +79,19 @@ class Train:
         """
         # get three sets
         x_train, y_train = datasets.get("train")
-        regr = KernelRidge(**model_cfg)
+        # regr = KernelRidge(**model_cfg)
+
+        regr = AveragingModels([ElasticNet(**model_cfg["ElasticNet"]),
+                                KernelRidge(**model_cfg["KernelRidge"]),
+                                xgboost.XGBRegressor(**model_cfg["XGBRegressor"]),
+                                ])
+
         # labels/ targets might be converted to log version based on choice
         targets = np.log(y_train) if log_target else y_train
         # fit regression model
         regr.fit(x_train, targets)
         # predict values/cycle life for all three sets
         pred_train = regr.predict(x_train)
-
 
         if log_target:
             # scale up the preedictions
@@ -78,14 +105,14 @@ class Train:
             self.model = regr
         print(f"Regression Error (Train): {error_train}%")
 
-
     def run_regression(self):
         """
         训练回归模型主参数
         """
         model_cfg = self.args.KernelRidge
         features = Dataset(self.args, regression_type="full").get_feature()
-        self.regression(features, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target, save_model=True)
+        self.regression(features, regression_type="full", model_cfg=model_cfg,
+                        log_target=self.args.log_target, save_model=True)
 
 
 if __name__ == '__main__':
