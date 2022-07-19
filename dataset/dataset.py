@@ -109,6 +109,7 @@ class Dataset:
     def build_feature_df(self, batch_dict):
         """
         建立一个DataFrame，包含加载的批处理字典中所有最初使用的特性
+        注意: cell["cycle"]["100"] == cell["summary"][100]
         """
 
         print("Start building features ...")
@@ -116,7 +117,7 @@ class Dataset:
         # 124 cells (3 batches)
         n_cells = len(batch_dict.keys())
 
-        ## Initializing feature vectors:
+        # Initializing feature vectors:
         # numpy vector with 124 zeros
         cycle_life = np.zeros(n_cells)
         # 1. delta_Q_100_10(V)
@@ -132,14 +133,18 @@ class Dataset:
         intercept_lin_fit_2_100 = np.zeros(
             n_cells)  # Intercept of the linear fit to capavity face curve, cycles 2 to 100
         discharge_capacity_2 = np.zeros(n_cells)  # Discharge capacity, cycle 2
-        diff_discharge_capacity_max_2 = np.zeros(n_cells)  # Difference between max discharge capacity and cycle 2
+        # Difference between max discharge capacity and cycle 2
+        diff_discharge_capacity_max_2 = np.zeros(n_cells)
         discharge_capacity_100 = np.zeros(n_cells)  # for Fig. 1.e
         slope_lin_fit_95_100 = np.zeros(n_cells)  # for Fig. 1.f
         # 3. Other features
-        mean_charge_time_2_6 = np.zeros(n_cells)  # Average charge time, cycle 1 to 5
+        # Average charge time, cycle 1 to 5
+        mean_charge_time_2_6 = np.zeros(n_cells)
         minimum_IR_2_100 = np.zeros(n_cells)  # Minimum internal resistance
 
-        diff_IR_100_2 = np.zeros(n_cells)  # Internal resistance, difference between cycle 100 and cycle 2
+        # Internal resistance, difference between cycle 100 and cycle 2
+        diff_IR_100_2 = np.zeros(n_cells)
+        integral_temperature_2_100 = np.zeros(n_cells)
 
         # Classifier features
         minimum_dQ_5_4 = np.zeros(n_cells)
@@ -159,13 +164,16 @@ class Dataset:
             skewness_dQ_100_10[i] = np.log(np.abs(skew(dQ_100_10)))
             kurtosis_dQ_100_10[i] = np.log(np.abs(kurtosis(dQ_100_10)))
 
-            Qdlin_100_10 = cell['cycles']['100']['Qdlin'] - cell['cycles']['10']['Qdlin']
+            Qdlin_100_10 = cell['cycles']['100']['Qdlin'] - \
+                cell['cycles']['10']['Qdlin']
             dQ_100_10_2[i] = np.var(Qdlin_100_10)
 
             # 2. Discharge capacity fade curve features
             # Compute linear fit for cycles 2 to 100:
-            q = cell['summary']['QD'][1:100].reshape(-1, 1)  # discharge cappacities; q.shape = (99, 1);
-            X = cell['summary']['cycle'][1:100].reshape(-1, 1)  # Cylce index from 2 to 100; X.shape = (99, 1)
+            # discharge cappacities; q.shape = (99, 1);
+            q = cell['summary']['QD'][2:101].reshape(-1, 1)
+            # Cylce index from 2 to 100; X.shape = (99, 1)
+            X = cell['summary']['cycle'][2:101].reshape(-1, 1)
             linear_regressor_2_100 = LinearRegression()
             linear_regressor_2_100.fit(X, q)
 
@@ -176,18 +184,23 @@ class Dataset:
 
             discharge_capacity_100[i] = q[-1][0]
 
-            q95_100 = cell['summary']['QD'][94:100].reshape(-1, 1)
-            q95_100 = q95_100 * 1000  # discharge cappacities; q.shape = (99, 1);
-            X95_100 = cell['summary']['cycle'][94:100].reshape(-1,
-                                                               1)  # Cylce index from 2 to 100; X.shape = (99, 1)
+            q95_100 = cell['summary']['QD'][95:101].reshape(-1, 1)
+            # discharge cappacities; q.shape = (99, 1);
+            q95_100 = q95_100 * 1000
+            X95_100 = cell['summary']['cycle'][95:101].reshape(-1,
+                                                               1)  # Cylce index from 95 to 100; X.shape = (99, 1)
             linear_regressor_95_100 = LinearRegression()
             linear_regressor_95_100.fit(X95_100, q95_100)
             slope_lin_fit_95_100[i] = linear_regressor_95_100.coef_[0]
 
             # 3. Other features
-            mean_charge_time_2_6[i] = np.mean(cell['summary']['chargetime'][1:6])
-            minimum_IR_2_100[i] = np.min(cell['summary']['IR'][1:100])
-            diff_IR_100_2[i] = cell['summary']['IR'][100] - cell['summary']['IR'][1]
+            mean_charge_time_2_6[i] = np.mean(
+                cell['summary']['chargetime'][2:7])
+            minimum_IR_2_100[i] = np.min(cell['summary']['IR'][2:101])
+            diff_IR_100_2[i] = cell['summary']['IR'][100] - \
+                cell['summary']['IR'][2]
+            integral_temperature_2_100[i] = np.sum(
+                cell["summary"]["Tavg"][2:101])
 
             # Classifier features
             c4 = cell['cycles']['4']
@@ -200,22 +213,24 @@ class Dataset:
         # combining all featues in one big matrix where rows are the cells and colums are the features
         # note last two variables below are labels/targets for ML i.e cycle life and cycle_550_clf
         features_df = pd.DataFrame({
-            "cell_key": np.array(list(batch_dict.keys())),
-            "minimum_dQ_100_10": minimum_dQ_100_10,
-            "variance_dQ_100_10": variance_dQ_100_10,
-            "skewness_dQ_100_10": skewness_dQ_100_10,
-            "kurtosis_dQ_100_10": kurtosis_dQ_100_10,
-            "slope_lin_fit_2_100": slope_lin_fit_2_100,
-            "intercept_lin_fit_2_100": intercept_lin_fit_2_100,
-            "discharge_capacity_2": discharge_capacity_2,
-            "diff_discharge_capacity_max_2": diff_discharge_capacity_max_2,
-            "mean_charge_time_2_6": mean_charge_time_2_6,
-            "minimum_IR_2_100": minimum_IR_2_100,
-            "diff_IR_100_2": diff_IR_100_2,
-            "minimum_dQ_5_4": minimum_dQ_5_4,
-            "variance_dQ_5_4": variance_dQ_5_4,
-            "cycle_life": cycle_life,
-            "cycle_550_clf": cycle_550_clf
+            "cell_key": np.array(list(batch_dict.keys())),  # 0
+            "minimum_dQ_100_10": minimum_dQ_100_10,  # 1
+            "variance_dQ_100_10": variance_dQ_100_10,  # 2
+            "skewness_dQ_100_10": skewness_dQ_100_10,  # 3
+            "kurtosis_dQ_100_10": kurtosis_dQ_100_10,  # 4
+            "slope_lin_fit_2_100": slope_lin_fit_2_100,  # 5
+            "intercept_lin_fit_2_100": intercept_lin_fit_2_100,  # 6
+            "discharge_capacity_2": discharge_capacity_2,  # 7
+            "diff_discharge_capacity_max_2": diff_discharge_capacity_max_2,  # 8
+            "mean_charge_time_2_6": mean_charge_time_2_6,  # 9
+            "minimum_IR_2_100": minimum_IR_2_100,  # 10
+            "diff_IR_100_2": diff_IR_100_2,  # 11
+            "minimum_dQ_5_4": minimum_dQ_5_4,  # 12
+            "variance_dQ_5_4": variance_dQ_5_4,  # 13
+            "integral_temperature_2_100": integral_temperature_2_100,  # 14
+            "slope_lin_fit_95_100": slope_lin_fit_95_100,  # 15
+            "cycle_life": cycle_life,  # 16
+            "cycle_550_clf": cycle_550_clf  # 17
         })
 
         print("Done building features")
