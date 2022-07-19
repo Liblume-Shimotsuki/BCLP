@@ -46,11 +46,10 @@ class Main:
         运行算法主程序
         """
         # Full
+        model_cfg = self.args.KernelRidge.__dict__
         features_full = Dataset(self.args, regression_type="full").get_feature()
         mode_full = Train(self.args)
-        mode_full.regression(features_full, alpha_train=self.args.alpha_train,
-                        regression_type="full",
-                        l1_ratio=self.args.l1_ratio, log_target=self.args.log_target, model="elastic")
+        mode_full.regression(features_full, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target, model="elastic")
 
         Eval(self.args, model = mode_full.model).evaluation(features_full,
                         regression_type="full",
