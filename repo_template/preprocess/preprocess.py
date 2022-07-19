@@ -30,7 +30,28 @@ class Preprocess:
         :param args: 初始化信息
         """
         self.args = args
-
+    def write(self):
+        bat_dict1, bat_dict2, bat_dict3 = self.data_preprocess()
+        data = {"bat_dict1":bat_dict1, "bat_dict2":bat_dict2, "bat_dict3":bat_dict3}
+        for key, value in data.items():
+            print("saving {} to disk ...".format(key))
+            with open(key+".pkl", "wb") as f:
+                pickle.dump(value, f)
+        
+    def read(self):
+        import os
+        pickle_files = ['bat_dict1.pkl', 'bat_dict2.pkl', 'bat_dict3.pkl']
+        data = {}
+        if not all(os.path.exists(file) for file in pickle_files):
+            print("pkl not exists, create one")
+            self.write()
+            print("pkl created")
+        data = {}
+        print("Loading pkl from disk ...")
+        for file_name in pickle_files:
+            with open(file_name, "rb") as f:
+                data[file_name] = pickle.load(f)
+        return data["bat_dict1.pkl"], data["bat_dict2.pkl"], data["bat_dict3.pkl"]
     def data_preprocess(self):
         """
         数据预处理主函数，返回完成预处理数据集
