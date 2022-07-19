@@ -25,6 +25,7 @@ from sklearn.metrics import mean_absolute_percentage_error
 import argparse
 import numpy as np
 
+sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from dataset.dataset import Dataset
 
