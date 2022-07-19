@@ -33,7 +33,7 @@ from xgboost import XGBRegressor
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from dataset.dataset import Dataset
-from averaging_model import AveragingModels
+from tools.averaging_model import AveragingModels
 warnings.filterwarnings('ignore')
 
 
