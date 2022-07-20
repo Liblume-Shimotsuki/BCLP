@@ -2,7 +2,7 @@
 
 ## 1. 简介
 
-- 本次使用的模型为Kernel Ridge Regression即使用核技巧的岭回归（L2正则线性回归），它的学习形式和SVR（support vector regression）相同，但是两者的损失函数不同。
+- 本次使用的模型为 Kernel Ridge Regression, ElasticNet 与 XGBRegressor 的平均模型.
 
 - 论文标题: Data-driven prediction of battery cycle life before capacity degradation 
 
