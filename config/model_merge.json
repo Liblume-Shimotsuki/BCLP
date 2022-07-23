@@ -14,20 +14,11 @@
       "alpha": 0.005,
       "l1_ratio": 0.9
     },
-    "XGBRegressor":{
-      "booster": "gbtree",
-      "colsample_bytree": 0.8,
-      "gamma": 0.1,
-      "learning_rate": 0.02,
-      "max_depth": 5,
-      "n_estimators": 500,
-      "min_child_weight": 0.8,
-      "reg_alpha": 0,
-      "reg_lambda": 1,
-      "subsample": 0.8,
-      "silent": 1,
+    "GradientBoostingRegressor":{
+      "n_estimators": 200,
+      "max_depth": 4,
+      "min_samples_split": 5,
       "random_state": 4,
-      "nthread": 2
     }
   },
   "log_target": false
