@@ -18,7 +18,7 @@
       "n_estimators": 200,
       "max_depth": 4,
       "min_samples_split": 5,
-      "random_state": 4,
+      "random_state": 4
     }
   },
   "log_target": false
