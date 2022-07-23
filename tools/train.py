@@ -26,6 +26,7 @@ from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.linear_model import ElasticNet, LinearRegression, LogisticRegression
 from sklearn.kernel_ridge import KernelRidge
+from sklearn.ensemble import AdaBoostRegressor, GradientBoostingRegressor
 
 import xgboost
 from xgboost import XGBRegressor
@@ -69,7 +70,8 @@ class Train:
 
         regr = AveragingModels([ElasticNet(**model_cfg["ElasticNet"]),
                                 KernelRidge(**model_cfg["KernelRidge"]),
-                                xgboost.XGBRegressor(**model_cfg["XGBRegressor"]),
+#                                 xgboost.XGBRegressor(**model_cfg["XGBRegressor"]),
+                                GradientBoostingRegressor(**model_cfg["GradientBoostingRegressor"])
                                 ])
 
         # labels/ targets might be converted to log version based on choice
