@@ -21,6 +21,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import skew, kurtosis
 from sklearn.linear_model import ElasticNet, LinearRegression, LogisticRegression
+from sklearn.preprocessing import StandardScaler, Normalizer, MinMaxScaler
 
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
@@ -31,14 +32,12 @@ class Dataset:
     """
     数据集类
     """
-    def __init__(self, args, regression_type):
+    def __init__(self, args):
         """
         初始化
         :param args: 初始化信息
-        :param regression_type: 回归模型类型，共有三个回归模型类型 ["full", "variance", "discharge"]
         """
         self.args = args
-        self.regression_type = regression_type
 
     def load_batches_to_dict(self, bat_dict1, bat_dict2, bat_dict3):
         """
@@ -236,24 +235,17 @@ class Dataset:
         print("Done building features")
         return features_df
 
-    def train_val_split(self, features_df, regression_type="full", model="regression", remove_exceptional_cells=True):
+    def train_val_split(self, features_df, model="regression", remove_exceptional_cells=True):
         """
         划分train&test数据集。注意：数据集要按照指定方式划分
         :param features_df: 包含最初使用的特性dataframe
-        :param regression_type: 回归模型的类型
         :param model: 使用模型的flag
         """
-        # only three versions are allowed.
-        assert regression_type in ["full", "variance", "discharge"]
 
-        # dictionary to hold the features indices for each model version.
-        features = {
-            "full": ["minimum_dQ_100_10", "variance_dQ_100_10", "mean_charge_time_2_6",
-                     "variance_dQ_5_4", "diff_IR_100_2", "slope_lin_fit_2_100",
-                     "discharge_capacity_2"],
-        }
         # get the features for the model version (full, variance, discharge)
-        feature_indices = features[regression_type]
+        feature_indices = ["minimum_dQ_100_10", "variance_dQ_100_10", "mean_charge_time_2_6",
+                     "variance_dQ_5_4", "diff_IR_100_2", "slope_lin_fit_2_100",
+                     "discharge_capacity_2"]
         # get all cells with the specified features
         model_features = features_df[feature_indices]
         # get last two columns (cycle life and classification)
@@ -282,8 +274,6 @@ class Dataset:
         # return 3 sets
         return {"train": [x_train, y_train], "val": [x_val, y_val], "test": [x_test, y_test]}
     def data_normalize(self, battery_dataset):
-        from sklearn.preprocessing import StandardScaler, Normalizer, MinMaxScaler
-
         data_normalize = battery_dataset.copy()
         # s = StandardScaler().fit(data_normalize.iloc[train_cells])
         # s = Normalizer().fit(data_normalize.iloc[train_cells])
@@ -293,6 +283,12 @@ class Dataset:
         data_normalize["test"][0] = s.transform(data_normalize["test"][0])
 
         return data_normalize
+
+    @staticmethod
+    def get_label_scaler(y):
+        s = MinMaxScaler().fit(y)
+        return s
+
     def get_feature(self):
         """
         类主函数，返回可用于训练的数据集
@@ -303,8 +299,7 @@ class Dataset:
         all_batches_dict = self.load_batches_to_dict(bat_dict1, bat_dict2, bat_dict3)
         # function to build features for ML
         features_df = self.build_feature_df(all_batches_dict)
-        battery_dataset = self.train_val_split(features_df, self.regression_type)
+        battery_dataset = self.train_val_split(features_df)
         battery_dataset = self.data_normalize(battery_dataset)
         return battery_dataset
-
 

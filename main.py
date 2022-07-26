@@ -47,11 +47,14 @@ class Main:
         """
         # Full
         model_cfg = self.args.model_cfg
-        features_full = Dataset(self.args, regression_type="full").get_feature()
-        mode_full = Train(self.args)
-        mode_full.regression(features_full, regression_type="full", model_cfg=model_cfg, log_target=self.args.log_target)
+        dataset = Dataset(self.args, regression_type="full")
+        features = dataset.get_feature()
+        y_scaler = dataset.get_scaler(features["train"][1])
 
-        Eval(self.args, model = mode_full.model).evaluation(features_full,
+        mode_full = Train(self.args)
+        mode_full.regression(features, model_cfg=model_cfg)
+
+        Eval(self.args, model = mode_full.model).evaluation(features,
                         regression_type="full",
                         log_target=self.args.log_target)
 

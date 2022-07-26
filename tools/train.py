@@ -27,16 +27,17 @@ from sklearn.linear_model import Lasso, Ridge
 from sklearn.linear_model import ElasticNet, LinearRegression, LogisticRegression
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.ensemble import AdaBoostRegressor, GradientBoostingRegressor
-
+from sklearn.svm import SVR
+import random
+import tensorflow as tf
 import xgboost
 from xgboost import XGBRegressor
 
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from dataset.dataset import Dataset
-from tools.averaging_model import AveragingModels
+from tools.averaging_model import *
 warnings.filterwarnings('ignore')
-
 
 
 
@@ -51,10 +52,15 @@ class Train:
         初始化
         :param args: 初始化信息
         """
-        self.model = None
         self.args = args
 
-    def regression(self, datasets, regression_type, log_target=True, model_cfg=None, save_model=False):
+    def manual_seed(seed_value):
+        os.environ['PYTHONHASHSEED']=str(seed_value)
+        random.seed(seed_value)
+        np.random.seed(seed_value)
+        tf.random.set_seed(seed_value)
+
+    def regression(self, datasets, model_cfg=None, save_model=False):
         """
         回归函数
         :param datasets: 数据集
@@ -65,30 +71,43 @@ class Train:
         :param model: 使用模型
         """
         # get three sets
+        self.manual_seed(4)
         x_train, y_train = datasets.get("train")
-        # regr = KernelRidge(**model_cfg)
+        y_scaler = Dataset.get_scaler(y_train)
 
-        regr = AveragingModels([ElasticNet(**model_cfg["ElasticNet"]),
-                                KernelRidge(**model_cfg["KernelRidge"]),
-#                                 xgboost.XGBRegressor(**model_cfg["XGBRegressor"]),
-                                GradientBoostingRegressor(**model_cfg["GradientBoostingRegressor"])
-                                ])
 
-        # labels/ targets might be converted to log version based on choice
-        targets = np.log(y_train) if log_target else y_train
+
+        regr = AveragingModels([
+            OptionalModel(
+                SVR(kernel="poly", degree=3, coef0=3, C=0.02), 
+                log_target=True),
+            OptionalModel(
+                ElasticNet(random_state=4, alpha=0.005, l1_ratio=0.9),
+                log_target=False),
+            OptionalModel(
+                KernelRidge(kernel="polynomial", degree=5, coef0=3, alpha=0.88),
+                log_target=True),
+            OptionalModel(
+                XGBRegressor(booster='gbtree',colsample_bytree=0.8, gamma=0.1, 
+                                learning_rate=0.02, max_depth=3, 
+                                n_estimators=276,min_child_weight=0.8,
+                                reg_alpha=0, reg_lambda=1,
+                                subsample=0.8, random_state =4, nthread = 2),
+                log_target=False),
+            OptionalModel(
+                GradientBoostingRegressor(n_estimators=64, max_depth=5, min_samples_split=3, random_state=4),
+                log_target=True),
+        ])
+
         # fit regression model
-        regr.fit(x_train, targets)
+        regr.fit(x_train, y_train)
         # predict values/cycle life for all three sets
         pred_train = regr.predict(x_train)
-
-        if log_target:
-            # scale up the preedictions
-            pred_train = np.exp(pred_train)
 
         # mean percentage error (same as paper)
         error_train = mean_absolute_percentage_error(y_train, pred_train) * 100
         if save_model:
-            joblib.dump(regr, f"./model/{regression_type}_regression.pkl")
+            joblib.dump(regr, f"./model/model_regression.pkl")
         else:
             self.model = regr
         print(f"Regression Error (Train): {error_train}%")
@@ -98,9 +117,8 @@ class Train:
         训练回归模型主参数
         """
         model_cfg = self.args.model_cfg
-        features = Dataset(self.args, regression_type="full").get_feature()
-        self.regression(features, regression_type="full", model_cfg=model_cfg,
-                        log_target=self.args.log_target, save_model=True)
+        features = Dataset(self.args).get_feature()
+        self.regression(features, model_cfg=model_cfg, save_model=True)
 
 
 if __name__ == '__main__':

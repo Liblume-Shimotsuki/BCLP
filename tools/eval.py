@@ -28,7 +28,7 @@ import numpy as np
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from dataset.dataset import Dataset
-from tools.averaging_model import AveragingModels
+from tools.averaging_model import *
 
 
 warnings.filterwarnings('ignore')
@@ -42,32 +42,26 @@ class Eval:
         初始化
         :param args: 初始化信息
         """
-        self.model = model
         self.args = args
+        self.model = model
 
 
-    def evaluation(self, datasets, regression_type, log_target=True, load_model = False):
+    def evaluation(self, datasets, load_model = False):
         """
         验证函数
         :param datasets: 数据集
-        :param regression_type: 回归模型类型
-        :param log_target: 是否进行log变换
         """
         # get three sets
         x_val, y_val = datasets.get("val")
         x_test, y_test = datasets.get("test")
         if load_model:
-            regr = joblib.load(f"./model/{regression_type}_regression.pkl")
+            regr = joblib.load(f"./model/model_regression.pkl")
         else:
             regr = self.model
 
         # predict values/cycle life for all three sets
         pred_val = regr.predict(x_val)
         pred_test = regr.predict(x_test)
-
-        if log_target:
-            # scale up the preedictions
-            pred_val, pred_test = np.exp(pred_val), np.exp(pred_test)
 
         # mean percentage error (same as paper)
         error_val = mean_absolute_percentage_error(y_val, pred_val) * 100
@@ -80,12 +74,9 @@ class Eval:
         """
         验证回归模型主参数
         """
-        features = Dataset(self.args, regression_type="full").get_feature()
+        features = Dataset(self.args).get_feature()
         self.evaluation(features,
-                        regression_type="full",
-                        log_target=self.args.log_target,
                         load_model=True)
-
 
 if __name__ == '__main__':
 
