@@ -286,7 +286,7 @@ class Dataset:
 
     @staticmethod
     def get_label_scaler(y):
-        s = MinMaxScaler().fit(y)
+        s = MinMaxScaler().fit(y.values.reshape(-1, 1))
         return s
 
     def get_feature(self):
