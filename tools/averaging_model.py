@@ -1,3 +1,6 @@
+from pyexpat import model
+import joblib
+import sklearn
 from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
 import numpy as np
 import pandas as pd
@@ -12,6 +15,7 @@ from tensorflow.keras import regularizers
 class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
     def __init__(self, models):
         self.models = models
+        self.models_ = []
 
     def fit(self, X, y):
         self.models_ = [deepcopy(x) for x in self.models]
@@ -24,7 +28,29 @@ class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
             model.predict(X) for model in self.models_
         ])
         return np.mean(predictions, axis=1)
+    
+    def save(self, path):
+        models_ = self.models_
+        keras_models = []
+        for model in models_:
+            if type(model) == OptionalNnModels:
+                keras_models.append(model.base_model.model)
+                model.base_model = None
+        joblib.dump(models_, path + '_sklearn_models.pkl')
+        for i, keras_model in enumerate(keras_models):
+            keras_model.save(path + '_keras_model' + str(i) + '.h5')
+        for model in models_:
+            if type(model) == OptionalNnModels:
+                model.base_model = keras_models.pop(0)
 
+    def load(self, path):
+        models_ = joblib.load(path + '_sklearn_models.pkl')
+        keras_model_index = 0
+        for model in models_:
+            if type(model) == OptionalNnModels:
+                model.base_model = tf.keras.models.load_model(path + '_keras_model' + str(keras_model_index) + '.h5')
+                keras_model_index += 1
+        self.models_ = models_
 
 class OptionalModel(BaseEstimator, RegressorMixin, TransformerMixin):
     def __init__(self, base_model, log_target) -> None:

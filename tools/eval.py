@@ -25,6 +25,8 @@ from sklearn.metrics import mean_absolute_percentage_error
 import argparse
 import numpy as np
 
+from tools.averaging_model import AveragingModels
+
 sys.path.insert(0, os.getcwd())
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from dataset.dataset import Dataset
@@ -55,7 +57,9 @@ class Eval:
         x_val, y_val = datasets.get("val")
         x_test, y_test = datasets.get("test")
         if load_model:
-            regr = joblib.load(f"./model/model_regression.pkl")
+            # regr = joblib.load(f"./model/model_regression.pkl")
+            regr = AveragingModels([])
+            regr.load("./model/model_merge")
         else:
             regr = self.model
 

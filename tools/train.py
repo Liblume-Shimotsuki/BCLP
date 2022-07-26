@@ -110,7 +110,8 @@ class Train:
         # mean percentage error (same as paper)
         error_train = mean_absolute_percentage_error(y_train, pred_train) * 100
         if save_model:
-            joblib.dump(regr, f"./model/model_regression.pkl")
+            # joblib.dump(regr, f"./model/model_regression.pkl")
+            regr.save("./model/model_merge")
         else:
             self.model = regr
         print(f"Regression Error (Train): {error_train}%")
