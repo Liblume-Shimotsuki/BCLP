@@ -74,7 +74,7 @@ class Train:
         # get three sets
         self.manual_seed(4)
         x_train, y_train = datasets.get("train")
-        y_scaler = Dataset.get_scaler(y_train)
+        y_scaler = Dataset.get_label_scaler(y_train)
 
         regr = AveragingModels([
             OptionalModel(
