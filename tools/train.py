@@ -108,7 +108,7 @@ class Train:
                     raise ValueError("model_name is not available")
                 model_selects.append(
                     OptionalModel(
-                        model(**model_cfg[i]["model_name"]),
+                        model(**model_cfg[i][model_name]),
                         log_target = model_cfg[i]["log_target"]
                     )
                 )
