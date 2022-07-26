@@ -2,11 +2,11 @@
 
 ## 1. 简介
 
-- 本次使用的模型为 Kernel Ridge Regression, ElasticNet 与 XGBRegressor 的平均模型.
+- 本次使用的模型为 Kernel Ridge Regression, ElasticNet 与 GradientBoostingRegressor 的平均模型.
 
 - 论文标题: Data-driven prediction of battery cycle life before capacity degradation 
 
-- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=8.07%, 在 Secondary test 数据集上, MAPE=9.14%, 综合MAPE=8.60%.
+- 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=7.94%, 在 Secondary test 数据集上, MAPE=8.65%, 综合MAPE=8.30%.
 
 ## 2. 数据集和复现精度
 
@@ -51,10 +51,11 @@
 
 |                | 论文精度  | 参考代码精度 | 本repo复现精度 |
 | -------------- |:-----:|:------:|:---------:|
-| Train          | 5.6%  | 17.2%  | 6.26%     |
-| Primary test   | 7.5%  | 15.4%  | 8.07%     |
-| Secondary test | 10.7% | 16.0%  | 9.14%     |
-| 综合MAPE       | 9.1%  | 15.7%   | 8.60%     |
+| Train          | 5.6%  | 17.2%  | 6.16%     |
+| Primary test   | 7.5%  | 15.4%  | 7.94%     |
+| Secondary test | 10.7% | 16.0%  | 8.65%     |
+| 综合MAPE         | 9.1%  | 15.7%  | 8.30%     |
+
 ## 3. 准备数据与环境
 
 ### 3.1 准备环境
@@ -81,15 +82,7 @@ Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-[13:50:54] WARNING: ../src/learner.cc:627: 
-Parameters: { "silent" } might not be used.
-
-  This could be a false alarm, with some parameters getting used by language bindings but
-  then being mistakenly passed down to XGBoost core, or some parameter actually being used
-  but getting flagged wrongly here. Please open an issue if you find any such cases.
-
-
-Regression Error (Train): 6.262108953796329%
+Regression Error (Train): 6.1608293101131615%
 ```
 
 ### 4.2 模型验证
@@ -104,8 +97,8 @@ Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-Regression Error (validation (primary) test): 8.068955692662822%
-Regression Error batch 3 (test (secondary)): 9.140820268353899%
+Regression Error (validation (primary) test): 7.94515934180255%
+Regression Error batch 3 (test (secondary)): 8.658263103721454%
 ```
 
 - 在这里简单说明一下验证（eval.py）的命令，需要提供原始数据等内容，并在文档中体现输出结果。
@@ -137,8 +130,6 @@ Regression Error (Train): 6.262108953796329%
 Regression Error (validation (primary) test): 8.068955692662822%
 Regression Error batch 3 (test (secondary)): 9.140820268353899%
 ```
-
-
 
 ## 5. 代码结构与简要说明
 
