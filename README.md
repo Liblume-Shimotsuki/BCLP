@@ -5,6 +5,7 @@
 - 论文标题: Data-driven prediction of battery cycle life before capacity degradation 
 
 - 复现所用到的评价指标为MAPE, 即 mean absolute percentage error. 在 Primary test 数据集(已移除Cycle Life 为148的异常样本)上, MAPE=7.14%, 在 Secondary test 数据集上, MAPE=7.75%, 综合MAPE=7.45%.
+- **[在kaggle中打开](https://www.kaggle.com/code/lazurite137/hhhuge-blcp)**
 
 ## 2. 数据集和复现精度
 
