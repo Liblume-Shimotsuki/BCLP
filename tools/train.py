@@ -55,7 +55,7 @@ class Train:
         self.args = args
         self.model = None
 
-    def manual_seed(seed_value):
+    def manual_seed(self, seed_value):
         os.environ['PYTHONHASHSEED']=str(seed_value)
         random.seed(seed_value)
         np.random.seed(seed_value)
