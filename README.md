@@ -1,5 +1,3 @@
-# README模板
-
 ## 1. 简介
 
 - 本次使用的模型为 Kernel Ridge Regression, ElasticNet 与 GradientBoostingRegressor 的平均模型.
