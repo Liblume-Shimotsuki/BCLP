@@ -47,16 +47,13 @@ class Main:
         """
         # Full
         model_cfg = self.args.model_cfg
-        dataset = Dataset(self.args, regression_type="full")
+        dataset = Dataset(self.args)
         features = dataset.get_feature()
-        y_scaler = dataset.get_scaler(features["train"][1])
 
         mode_full = Train(self.args)
         mode_full.regression(features, model_cfg=model_cfg)
 
-        Eval(self.args, model = mode_full.model).evaluation(features,
-                        regression_type="full",
-                        log_target=self.args.log_target)
+        Eval(self.args, model = mode_full.model).evaluation(features)
 
 
 if __name__ == '__main__':

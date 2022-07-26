@@ -53,6 +53,7 @@ class Train:
         :param args: 初始化信息
         """
         self.args = args
+        self.model = None
 
     def manual_seed(seed_value):
         os.environ['PYTHONHASHSEED']=str(seed_value)
@@ -74,8 +75,6 @@ class Train:
         self.manual_seed(4)
         x_train, y_train = datasets.get("train")
         y_scaler = Dataset.get_scaler(y_train)
-
-
 
         regr = AveragingModels([
             OptionalModel(
