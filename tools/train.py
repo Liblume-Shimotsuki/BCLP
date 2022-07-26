@@ -30,6 +30,7 @@ from sklearn.ensemble import AdaBoostRegressor, GradientBoostingRegressor
 from sklearn.svm import SVR
 import random
 import tensorflow as tf
+from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 import xgboost
 from xgboost import XGBRegressor
 
@@ -96,6 +97,9 @@ class Train:
             OptionalModel(
                 GradientBoostingRegressor(n_estimators=64, max_depth=5, min_samples_split=3, random_state=4),
                 log_target=True),
+            OptionalNnModels(
+                KerasRegressor(build_fn=build_nn, epochs=700, batch_size=16, verbose=0),
+                target_scaler=y_scaler)
         ])
 
         # fit regression model
