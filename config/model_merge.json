@@ -59,11 +59,6 @@
         "min_samples_split": 3,
         "random_state": 4
       }
-    },
-    {
-      "model_name": "KerasRegressor",
-      "epochs": 700,
-      "batch_size": 16
     }
   ]
 }
