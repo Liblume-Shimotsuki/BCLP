@@ -63,7 +63,7 @@
     {
       "model_name": "KerasRegressor",
       "epochs": 700,
-      "batch_size": 16,
+      "batch_size": 16
     }
   ]
 }
