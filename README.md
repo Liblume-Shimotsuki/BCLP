@@ -110,23 +110,15 @@ python main.py --config_path ./config/competition.json
 ```
 
 ```
-Namespace(AveragingModels={'KernelRidge': {'alpha': 0.98, 'kernel': 'polynomial', 'degree': 6, 'coef0': 3}, 'ElasticNet': {'random_state': 4, 'alpha': 0.005, 'l1_ratio': 0.9}, 'XGBRegressor': {'booster': 'gbtree', 'colsample_bytree': 0.8, 'gamma': 0.1, 'learning_rate': 0.02, 'max_depth': 5, 'n_estimators': 500, 'min_child_weight': 0.8, 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.8, 'silent': 1, 'random_state': 4, 'nthread': 2}}, config_path='./config/model_merge.json', log_target=False, matFilename1='/dataset/2017-05-12_batchdata_updated_struct_errorcorrect.mat', matFilename2='/dataset/2017-06-30_batchdata_updated_struct_errorcorrect.mat', matFilename3='/dataset/2018-04-12_batchdata_updated_struct_errorcorrect.mat')
+Namespace(config_path='./config/model_merge.json', log_target=False, matFilename1='/dataset/2017-05-12_batchdata_updated_struct_errorcorrect.mat', matFilename2='/dataset/2017-06-30_batchdata_updated_struct_errorcorrect.mat', matFilename3='/dataset/2018-04-12_batchdata_updated_struct_errorcorrect.mat', model_cfg={'KernelRidge': {'alpha': 0.98, 'kernel': 'polynomial', 'degree': 6, 'coef0': 3}, 'ElasticNet': {'random_state': 4, 'alpha': 0.005, 'l1_ratio': 0.9}, 'GradientBoostingRegressor': {'n_estimators': 200, 'max_depth': 4, 'min_samples_split': 5, 'random_state': 4}})
 Loading pkl from disk ...
 Loading batches ...
 Done loading batches
 Start building features ...
 Done building features
-[13:43:29] WARNING: ../src/learner.cc:627: 
-Parameters: { "silent" } might not be used.
-
-  This could be a false alarm, with some parameters getting used by language bindings but
-  then being mistakenly passed down to XGBoost core, or some parameter actually being used
-  but getting flagged wrongly here. Please open an issue if you find any such cases.
-
-
-Regression Error (Train): 6.262108953796329%
-Regression Error (validation (primary) test): 8.068955692662822%
-Regression Error batch 3 (test (secondary)): 9.140820268353899%
+Regression Error (Train): 6.1608293101131615%
+Regression Error (validation (primary) test): 7.94515934180255%
+Regression Error batch 3 (test (secondary)): 8.658263103721454%
 ```
 
 ## 5. 代码结构与简要说明
