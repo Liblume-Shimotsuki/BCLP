@@ -138,7 +138,7 @@ class Train:
         #         KerasRegressor(build_fn=build_nn, epochs=700, batch_size=16, verbose=0),
         #         target_scaler=y_scaler)
         # ])
-        repr = AveragingModels(model_selects)
+        regr = AveragingModels(model_selects)
 
         # fit regression model
         regr.fit(x_train, y_train)
