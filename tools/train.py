@@ -14,6 +14,8 @@
 # limitations under the License.
 
 
+from distutils.command.build import build
+from tabnanny import verbose
 from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
 import sys
 import os
@@ -40,7 +42,18 @@ from dataset.dataset import Dataset
 from tools.averaging_model import *
 warnings.filterwarnings('ignore')
 
-
+__model__available = {
+    "ElasticNet": ElasticNet,
+    "Lasso": Lasso,
+    "Ridge": Ridge,
+    "KernelRidge": KernelRidge,
+    "AdaBoostRegressor": AdaBoostRegressor,
+    "GradientBoostingRegressor": GradientBoostingRegressor,
+    "SVR": SVR,
+    "LinearRegression": LinearRegression,
+    "XGBRegressor": XGBRegressor,
+    "SVR": SVR,
+}
 
 
 class Train:
@@ -77,30 +90,55 @@ class Train:
         x_train, y_train = datasets.get("train")
         y_scaler = Dataset.get_label_scaler(y_train)
 
-        regr = AveragingModels([
-            OptionalModel(
-                SVR(kernel="poly", degree=3, coef0=3, C=0.02), 
-                log_target=True),
-            OptionalModel(
-                ElasticNet(random_state=4, alpha=0.005, l1_ratio=0.9),
-                log_target=False),
-            OptionalModel(
-                KernelRidge(kernel="polynomial", degree=5, coef0=3, alpha=0.88),
-                log_target=True),
-            OptionalModel(
-                XGBRegressor(booster='gbtree',colsample_bytree=0.8, gamma=0.1, 
-                                learning_rate=0.02, max_depth=3, 
-                                n_estimators=276,min_child_weight=0.8,
-                                reg_alpha=0, reg_lambda=1,
-                                subsample=0.8, random_state =4, nthread = 2),
-                log_target=False),
-            OptionalModel(
-                GradientBoostingRegressor(n_estimators=64, max_depth=5, min_samples_split=3, random_state=4),
-                log_target=True),
-            OptionalNnModels(
-                KerasRegressor(build_fn=build_nn, epochs=700, batch_size=16, verbose=0),
-                target_scaler=y_scaler)
-        ])
+        n_models = len(model_cfg)
+        model_selects = []
+        for i in range(n_models):
+            model_name = model_cfg[i]["model_name"]
+            if model_name == "KerasRegressor":
+                model_selects.append(
+                    OptionalNnModels(
+                        KerasRegressor(build_fn=build_nn, 
+                                       epochs=model_cfg[i]["epochs"], 
+                                       batch_size=model_cfg[i]["batch_size"],
+                                       verbose=0),
+                        target_scaler=y_scaler))
+            else:
+                model = __model__available.get(model_name, None)
+                if model is None:
+                    raise ValueError("model_name is not available")
+                model_selects.append(
+                    OptionalModel(
+                        model(**model_cfg[i]["model_name"]),
+                        log_target = model_cfg[i]["log_target"]
+                    )
+                )
+
+
+        # regr = AveragingModels([
+        #     OptionalModel(
+        #         SVR(kernel="poly", degree=3, coef0=3, C=0.02), 
+        #         log_target=True),
+        #     OptionalModel(
+        #         ElasticNet(random_state=4, alpha=0.005, l1_ratio=0.9),
+        #         log_target=False),
+        #     OptionalModel(
+        #         KernelRidge(kernel="polynomial", degree=5, coef0=3, alpha=0.88),
+        #         log_target=True),
+        #     OptionalModel(
+        #         XGBRegressor(booster='gbtree',colsample_bytree=0.8, gamma=0.1, 
+        #                         learning_rate=0.02, max_depth=3, 
+        #                         n_estimators=276,min_child_weight=0.8,
+        #                         reg_alpha=0, reg_lambda=1,
+        #                         subsample=0.8, random_state =4, nthread = 2),
+        #         log_target=False),
+        #     OptionalModel(
+        #         GradientBoostingRegressor(n_estimators=64, max_depth=5, min_samples_split=3, random_state=4),
+        #         log_target=True),
+        #     OptionalNnModels(
+        #         KerasRegressor(build_fn=build_nn, epochs=700, batch_size=16, verbose=0),
+        #         target_scaler=y_scaler)
+        # ])
+        repr = AveragingModels(model_selects)
 
         # fit regression model
         regr.fit(x_train, y_train)
