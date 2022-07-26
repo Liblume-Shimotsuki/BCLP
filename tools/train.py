@@ -42,7 +42,7 @@ from dataset.dataset import Dataset
 from tools.averaging_model import *
 warnings.filterwarnings('ignore')
 
-__model__available = {
+__MODEL__AVALIABLE__ = {
     "ElasticNet": ElasticNet,
     "Lasso": Lasso,
     "Ridge": Ridge,
@@ -103,7 +103,7 @@ class Train:
                                        verbose=0),
                         target_scaler=y_scaler))
             else:
-                model = __model__available.get(model_name, None)
+                model = __MODEL__AVALIABLE__.get(model_name, None)
                 if model is None:
                     raise ValueError("model_name is not available")
                 model_selects.append(
