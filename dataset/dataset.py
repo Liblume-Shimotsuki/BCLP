@@ -243,7 +243,7 @@ class Dataset:
         """
 
         # get the features for the model version (full, variance, discharge)
-        feature_indices = ["minimum_dQ_100_10", "variance_dQ_100_10", "mean_charge_time_2_6",
+        feature_indices = ["minimum_dQ_100_10", "variance_dQ_100_10", 
                      "variance_dQ_5_4", "diff_IR_100_2", "slope_lin_fit_2_100",
                      "discharge_capacity_2"]
         # get all cells with the specified features
