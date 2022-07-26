@@ -1,0 +1,69 @@
+{
+  "matFilename1": "/dataset/2017-05-12_batchdata_updated_struct_errorcorrect.mat",
+  "matFilename2": "/dataset/2017-06-30_batchdata_updated_struct_errorcorrect.mat",
+  "matFilename3": "/dataset/2018-04-12_batchdata_updated_struct_errorcorrect.mat",
+  "model_cfg": [
+    {
+      "model_name": "SVR",
+      "log_target": true,
+      "SVR":{
+        "kernel": "poly",
+        "degree": 3,
+        "coef0": 3,
+        "C": 0.02
+      }
+    },
+    {
+      "model_name": "ElasticNet",
+      "log_target": false,
+      "ElasticNet": {
+        "random_state": 4, 
+        "alpha": 0.005, 
+        "l1_ratio": 0.9
+      }
+    },
+    {
+      "model_name": "KernelRidge",
+      "log_target": true,
+      "KernelRidge": {
+        "kernel": "polynomial",
+        "degree": 5,
+        "coef0": 3,
+        "alpha": 0.88
+      }
+    },
+    {
+      "model_name": "XGBRegressor",
+      "log_target": false,
+      "XGBRegressor": {
+        "booster": "gbtree",
+        "colsample_bytree": 0.8,
+        "gamma": 0.1,
+        "learning_rate": 0.02,
+        "max_depth": 3,
+        "n_estimators": 276,
+        "min_child_weight": 0.8,
+        "reg_alpha": 0, 
+        "reg_lambda": 1,
+        "subsample": 0.8,
+        "random_state": 4,
+        "nthread": 2
+      }
+    },
+    {
+      "model_name": "GradientBoostingRegressor",
+      "log_target": true,
+      "GradientBoostingRegressor": {
+        "n_estimators": 64, 
+        "max_depth": 5,
+        "min_samples_split": 3,
+        "random_state": 4
+      }
+    },
+    {
+      "model_name": "KerasRegressor",
+      "epochs": 700,
+      "batch_size": 16
+    }
+  ]
+}
