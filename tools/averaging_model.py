@@ -64,7 +64,7 @@ class OptionalNnModels(OptionalModel):
 
     def predict(self, X):
         pred = super().predict(X)
-        return self.target_scaler.inverse_transform(pred)
+        return self.target_scaler.inverse_transform(pred.reshape(-1, 1))
 
 
 def build_nn():
